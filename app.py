@@ -59,7 +59,7 @@ TA = {
                   "நாய பாத்தா விரல் நீட்டி அவங்க அம்மாகிட்ட காட்டுறான். அக்கா அழுதா சோகமா பாத்துட்டு "
                   "தட்டிக் குடுக்குறான். பேர் சொல்லிக் கூப்பிட்டா உடனே திரும்புறான். பந்த உதைக்கிறான், "
                   "ஸ்பூன்ல தானே சாப்பிடுறான், toy plate-ல toy சாப்பாடு வச்சு விளையாடுறான். "
-                  "பேசும்போது என் கண்ணப் பாத்துப் பேசுறான். முன்னாடி செஞ்ச எதையும் நிறுத்தல, "
+                  "பேசும்போது என் கண்ணப் பாத்துப் பேசுறான். சந்தோஷம், கோபம், ஆச்சரியம் எல்லாம் அவன் முகத்துலயே தெரியும். முன்னாடி செஞ்ச எதையும் நிறுத்தல, "
                   "புது வார்த்தைங்க கூடிட்டே தான் இருக்கு. நல்லா ஓடுறான், கைப்பிடிச்சு படி ஏறுறான். "
                   "புக்ல 'நாய் எங்க?'ன்னு கேட்டா காட்டுறான், மூக்கு, கண்ணு எங்கன்னு கேட்டா தொட்டுக் காட்டுறான். "
                   "flying kiss குடுப்பான், 'ஆமா'ன்னு தலை ஆட்டுவான். புது இடத்துக்குப் போனா என் முகத்தப் "
@@ -132,6 +132,11 @@ def to_choice(item, status):
 
 def question(item):
     return REGRESSION_Q if item.get("is_regression_check") else item["text"]
+
+
+def question_ta(item):
+    """Tamil wording of a question, or None if the data has no "ta" field for it."""
+    return TA["regression_q"] if item.get("is_regression_check") else item.get("ta")
 
 
 ss = st.session_state
@@ -260,7 +265,7 @@ by_id = {i["id"]: i for i in items}
 choices = ["Yes", "No", "Not sure"]
 
 if ss.llm_failed:
-    st.warning("We could not read the description automatically. Please answer the questions below.")
+    st.warning("AI unavailable – please answer the questions below")
 
 # Current answers: reviewed AI mappings (radio state) + card answers
 for item_id, m in mapped.items():
@@ -294,7 +299,10 @@ if mapped:
         m = mapped.get(item["id"])
         if not m:
             continue
-        st.markdown(f"{EMOJI[m['status']]} **{question(item)}**")
+        ta = question_ta(item)
+        st.markdown(f"{EMOJI[m['status']]} **{ta or question(item)}**")
+        if ta:
+            st.caption(question(item))
         if m["quote"]:
             st.caption(f"“{safe(m['quote'])}”")
         st.radio("Change", choices, horizontal=True, key=f"m_{run}_{item['id']}", label_visibility="collapsed")
@@ -427,6 +435,12 @@ if unmapped:
         b1.button("← Back", on_click=go_back)
     if not ss.get("key_only"):
         b2.button("Skip to result →", on_click=skip_to_result)
+
+# Repetitive behaviours: parent confirms; reported in the doctor note, never scored
+rep_key = f"rep_{run}"
+ss.setdefault(rep_key, [data["repetitive_behaviors"][i] for i in ss.repetitive])
+st.multiselect("Have you noticed any of these?", data["repetitive_behaviors"], key=rep_key,
+               help="Goes into the doctor note as reported. It never changes the result colour.")
 
 # Step 4b: optional home video
 
@@ -569,7 +583,7 @@ elif "result" in ss:
     voice_result(result)
     show_sprout(ss.answers, 680, "result_sprout_grown")
     quotes = {k: v["quote"] for k, v in mapped.items() if v["quote"]}
-    repetitive = [data["repetitive_behaviors"][i] for i in ss.repetitive]
+    repetitive = ss[rep_key]
     note = core.doctor_note(age, age_entry, items, ss.answers, quotes, result, repetitive,
                             core.compare(ss.answers, ss.video_obs) if video_ok else None,
                             ss.video_rep if video_ok else None)

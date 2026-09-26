@@ -54,6 +54,19 @@ def validate_mapping(raw, items):
     return out
 
 
+def apply_translations(entries, raw):
+    """Set a "ta" field on milestone entries from model output {id: Tamil text}. Only known ids,
+    non-empty strings and text without condition names are kept; "text" is never touched.
+    Returns the number of entries updated."""
+    by_id = {e["id"]: e for e in entries}
+    count = 0
+    for item_id, ta in (raw.items() if isinstance(raw, dict) else []):
+        if item_id in by_id and isinstance(ta, str) and ta.strip() and not BANNED_RE.search(ta):
+            by_id[item_id]["ta"] = ta.strip()
+            count += 1
+    return count
+
+
 def sanitize(text):
     """Remove condition names from model text."""
     return BANNED_RE.sub("[removed]", text) if isinstance(text, str) else ""

@@ -109,6 +109,18 @@ assert verdicts == {some[0]: "confirmed", some[1]: "video_shows_skill",
 assert parent == before, "compare must not modify parent_answers"
 assert core.compare({}, video_obs[:1])[0]["verdict"] == "video_shows_skill"  # not assessed + seen
 
+# Tamil translations: only known ids, clean strings, no condition names; English text untouched
+entries = [{"id": "a", "text": "Waves bye-bye"}, {"id": "b", "text": "Points"}, {"id": "c", "text": "Walks"}]
+n = core.apply_translations(entries, {"a": " டாட்டா காட்டுதா? ", "b": "ஆட்டிசம் அடையாளம்", "c": 5, "zz": "x"})
+assert n == 1 and entries[0]["ta"] == "டாட்டா காட்டுதா?" and entries[0]["text"] == "Waves bye-bye"
+assert "ta" not in entries[1] and "ta" not in entries[2]
+assert core.apply_translations(entries, ["not", "a", "dict"]) == 0
+
+# Repetitive behaviours: reported in the note, never scored
+all_obs_result = core.score(items, all_obs)
+note = core.doctor_note(20, entry, items, all_obs, {}, all_obs_result, ["Lines up toys"])
+assert "Lines up toys" in note and "not scored" in note and all_obs_result["level"] == "GREEN"
+
 # Visuals
 answers_mix = {items[0]["id"]: "observed", items[1]["id"]: "not_observed", items[2]["id"]: "unclear"}
 svg = viz.sprout_svg(items, answers_mix)
