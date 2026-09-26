@@ -33,9 +33,40 @@ assert core.score(items, {**all_obs, "m18_se2": "not_observed"})["level"] == "RE
 assert core.score(items, {**all_obs, "m18_mp2": "not_observed"})["level"] == "AMBER"
 assert core.score(items, {**all_obs, "u_regression": "not_observed"})["level"] == "RED"
 
-partial = core.score(items, {"m18_mp2": "observed"})
-assert partial["level"] == "GREEN"
-assert len(partial["not_assessed"]) == len(items) - 1
+# GREEN coverage guard
+key_ids = [i["id"] for i in items if core.is_key(i)]
+assert "u_regression" in key_ids and "m18_se2" in key_ids
+one = core.score(items, {"m18_mp2": "observed"})  # 1 observed, rest skipped
+assert one["level"] == "INCOMPLETE", one["level"]
+assert {i["id"] for i in one["missing_key"]} == set(key_ids)
+assert len(one["not_assessed"]) == len(items) - 1
+
+need = -(-3 * len(items) // 5)  # ceil(60%)
+enough = {k: "observed" for k in key_ids}
+for i in items:
+    if len(enough) >= need:
+        break
+    enough.setdefault(i["id"], "observed")
+assert core.score(items, enough)["level"] == "GREEN"
+enough_unclear_key = {**enough, key_ids[0]: "unclear"}  # "unclear" counts as answered (and makes it AMBER)
+assert core.score(items, enough_unclear_key)["level"] == "AMBER"
+
+only_key = {k: "observed" for k in key_ids}
+if len(only_key) < need:  # all key answered but under 60% -> still INCOMPLETE, no missing key
+    r = core.score(items, only_key)
+    assert r["level"] == "INCOMPLETE" and r["missing_key"] == [] and r["more_needed"] == need - len(only_key)
+
+assert core.score(items, {"m18_se2": "not_observed"})["level"] == "RED"  # key not_observed, rest skipped
+assert core.score(items, {"m18_mp2": "not_observed"})["level"] == "AMBER"  # AMBER fires with partial answers
+
+# Every activity id in app.py must exist in milestones.json (read from source: importing app.py runs the page)
+import ast
+import os
+tree = ast.parse(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "app.py"), encoding="utf-8").read())
+activity_ids = next([k.value for k in node.value.keys] for node in tree.body
+                    if isinstance(node, ast.Assign) and getattr(node.targets[0], "id", "") == "ACTIVITIES")
+missing_activity = sorted(set(activity_ids) - core.all_ids(data))
+assert not missing_activity, f"ACTIVITIES ids not in milestones.json: {missing_activity}"
 
 # Video: validate_video is the security boundary for model output
 raw_video = {"observations": [
@@ -72,6 +103,9 @@ answers_mix = {items[0]["id"]: "observed", items[1]["id"]: "not_observed", items
 svg = viz.sprout_svg(items, answers_mix)
 assert svg.count('class="leaf"') == len(items), (svg.count('class="leaf"'), len(items))
 assert svg == viz.sprout_svg(items, answers_mix), "sprout must be deterministic"
+still = viz.sprout_svg(items, answers_mix, animate=False)
+assert still.count('class="leaf"') == len(items) and "animation" not in still and "@keyframes" not in still
+assert "animation-delay" in svg
 assert viz.sprout_svg(items, answers_mix, {items[0]["id"]}).count("#1565c0") == 1  # one video ring
 
 evil = "<script>alert(1)</script> he says amma"

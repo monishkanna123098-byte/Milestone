@@ -4,6 +4,7 @@ import re
 from datetime import date
 
 STATUSES = ("observed", "not_observed", "unclear")
+GREEN_MIN_COVERAGE = (3, 5)  # 60%, as a fraction so the threshold is exact
 VIDEO_FINDINGS = ("observed", "opportunity_not_observed")
 TIMESTAMP_RE = re.compile(r"^\d{1,2}:\d{2}$")
 BANNED_RE = re.compile(r"autis\w*|\bASD\b|ஆட்டி[சஸ]\S*|மதி\s*இறுக்க\S*", re.IGNORECASE)
@@ -21,6 +22,16 @@ def checklist_for_age(data, age_months):
     age_entry = max(eligible, key=lambda a: a["age_months"])
     universal = [u for u in data["universal_checks"] if u["applies_from_months"] <= age_months]
     return age_entry, list(age_entry["milestones"]) + universal
+
+
+def all_ids(data):
+    """Every milestone id across all ages, plus universal checks."""
+    return {m["id"] for a in data["ages"] for m in a["milestones"]} | {u["id"] for u in data["universal_checks"]}
+
+
+def is_key(item):
+    """Key items: autism_sign items and every applicable universal check (incl. regression)."""
+    return bool(item.get("autism_sign")) or "applies_from_months" in item
 
 
 def validate_mapping(raw, items):
@@ -110,9 +121,21 @@ def score(items, answers):
             unclear.append(item)
             amber = True
             reasons.append(f"Not sure: {item['text']}")
-    level = "RED" if red else "AMBER" if amber else "GREEN"
-    return {"level": level, "missed": missed, "unclear": unclear,
-            "not_assessed": not_assessed, "reasons": reasons}
+    # GREEN needs every key item answered ("unclear" counts) and >= 60% of all items answered.
+    missing_key = [i for i in not_assessed if is_key(i)]
+    answered = len(items) - len(not_assessed)
+    num, den = GREEN_MIN_COVERAGE
+    more_needed = max(0, -(-num * len(items) // den) - answered)  # ceil(60% of items) - answered
+    if red:
+        level = "RED"
+    elif amber:
+        level = "AMBER"
+    elif not missing_key and not more_needed:
+        level = "GREEN"
+    else:
+        level = "INCOMPLETE"
+    return {"level": level, "missed": missed, "unclear": unclear, "not_assessed": not_assessed,
+            "reasons": reasons, "missing_key": missing_key, "more_needed": more_needed}
 
 
 def doctor_note(age_months, age_entry, items, answers, quotes, result, repetitive,

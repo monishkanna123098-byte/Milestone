@@ -11,31 +11,52 @@ import viz
 st.set_page_config(page_title="Mulai – early signs check", page_icon="🌱")
 
 REGRESSION_Q = "Has your child stopped doing something they used to do (words, gestures, play)?"
-REGRESSION_Q_TA = "முன்பு செய்த ஏதாவது ஒன்றை (வார்த்தைகள், சைகைகள், விளையாட்டு) இப்போது செய்வதை நிறுத்திவிட்டதா?"
-CARD_BUTTONS = [("ஆம் Yes", "Yes"), ("இல்லை No", "No"), ("தெரியல Not sure", "Not sure")]
-# id -> (English, Tamil, timed)
+# Every parent-facing Tamil string, in spoken Chennai Tamil, in one place for proofreading.
+# viz.py gets its labels from here via arguments (importing app.py would run the whole Streamlit page).
+TA = {
+    "app_name": "முளை",
+    "tagline": "குழந்தையோட வளர்ச்சி அடையாளங்கள முன்னாடியே கவனிப்போம்",
+    "describe_label": "உங்க குழந்தையப் பத்தி சொல்லுங்க",
+    "describe_hint": "பேர் சொல்லிக் கூப்பிட்டா திரும்பிப் பாக்குதா? விரல் நீட்டிக் காட்டுதா? என்ன வார்த்தைங்க பேசுது? "
+                     "மத்த குழந்தைங்களோட விளையாடுதா? நீங்க செய்யறதப் பாத்து அதே மாதிரி செய்யுதா?",
+    "yes": "ஆம்",
+    "no": "இல்லை",
+    "not_sure": "தெரியல",
+    "regression_q": "முன்னாடி செஞ்சுக்கிட்டு இருந்த ஏதாவது ஒண்ண (வார்த்தைங்க, சைகைங்க, விளையாட்டு) "
+                    "இப்போ செய்யறத நிறுத்திடுச்சா?",
+    "branch_social": "பழகுறது",
+    "branch_language": "பேச்சு",
+    "branch_thinking": "யோசிக்கிறது",
+    "branch_movement": "அசைவு",
+    "act_u_name": "விளையாடிட்டு இருக்கும்போது பின்னாடி நின்னு, சாதாரண குரல்ல ஒரு தடவ பேர் சொல்லிக் கூப்பிடுங்க. "
+                  "திரும்பிப் பாத்துச்சா?",
+    "act_u_eye": "எதிர்ல உக்காந்து அதுக்குப் புடிச்ச சின்ன பாட்டு ஒண்ணு பாடுங்க. பாடும்போது உங்க முகத்தப் பாத்துச்சா?",
+    "act_m12_se1": "கண்ணாமூச்சி இல்லன்னா கைதட்டி விளையாடுங்க. கூட சேர்ந்து விளையாடுச்சா, இன்னும் வேணும்னு கேட்டுச்சா?",
+    "act_m12_lc1": "'டாட்டா'ன்னு சொல்லிக் கை ஆட்டுங்க. திருப்பிக் கை ஆட்டுச்சா?",
+    "act_m15_se2": "புது பொம்மைய பக்கத்துல வைங்க. அத உங்ககிட்ட கொண்டு வந்துச்சா, இல்லன்னா தூக்கிக் காட்டுச்சா?",
+    "act_m18_se2": "சுவாரஸ்யமா ஏதாவது ஒண்ணப் (பறவை, ஃபேன்) பாத்து 'வாவ், பாரு!'ன்னு சொல்லுங்க. "
+                   "அத விரல் நீட்டிக் காட்டுச்சா?",
+    "act_m24_se1": "கையில அடிபட்ட மாதிரி நடிச்சு, சோகமான முகத்தோட 'ஆ'ன்னு சொல்லுங்க. "
+                   "நின்னு பாத்துச்சா, இல்லன்னா பக்கத்துல வந்துச்சா?",
+    "act_m36_se2": "பார்க்ல இல்லன்னா சொந்தக்காரங்க குழந்தைங்களோட இருக்கும்போது, "
+                   "மத்த குழந்தைங்ககிட்ட போய் சேர்ந்து விளையாடுச்சா?",
+}
+CARD_BUTTONS = [(f"{TA['yes']} Yes", "Yes"), (f"{TA['no']} No", "No"), (f"{TA['not_sure']} Not sure", "Not sure")]
+BRANCH_TA = {k: TA[f"branch_{k}"] for k in ("social", "language", "thinking", "movement")}
+LEGEND_TA = {k: TA[k] for k in ("yes", "no", "not_sure")}
+# id -> (English, timed). Tamil text is TA[f"act_{id}"].
 ACTIVITIES = {
     "u_name": ("While your child is playing, stand behind them and call their name once in a normal voice. "
-               "Did they turn to look at you?",
-               "விளையாடும்போது பின்னால் நின்று, சாதாரண குரலில் ஒருமுறை பெயர் சொல்லி அழையுங்கள். திரும்பிப் பார்த்ததா?",
-               True),
-    "u_eye": ("Sit face to face and sing a short song they like. Did they look at your face during the song?",
-              "எதிரே அமர்ந்து பிடித்த சிறிய பாட்டைப் பாடுங்கள். பாடும்போது உங்கள் முகத்தைப் பார்த்ததா?", True),
-    "m12_se1": ("Play peek-a-boo or pat-a-cake. Did they join in or ask for more?",
-                "கண்ணாமூச்சி அல்லது கைதட்டி விளையாடுங்கள். சேர்ந்து விளையாடியதா, இன்னும் வேண்டும் என்றதா?", True),
-    "m12_lc1": ("Wave bye-bye and say 'bye-bye'. Did they wave back?",
-                "'டாட்டா' என்று சொல்லிக் கை அசையுங்கள். திரும்பக் கை அசைத்ததா?", True),
-    "m15_se2": ("Put a new toy near them. Did they bring it or hold it up to show you?",
-                "புதிய பொம்மையை அருகில் வையுங்கள். அதைக் கொண்டு வந்ததா அல்லது தூக்கிக் காட்டியதா?", True),
+               "Did they turn to look at you?", True),
+    "u_eye": ("Sit face to face and sing a short song they like. Did they look at your face during the song?", True),
+    "m12_se1": ("Play peek-a-boo or pat-a-cake. Did they join in or ask for more?", True),
+    "m12_lc1": ("Wave bye-bye and say 'bye-bye'. Did they wave back?", True),
+    "m15_se2": ("Put a new toy near them. Did they bring it or hold it up to show you?", True),
     "m18_se2": ("Look at something interesting (a bird, a fan) and say 'wow, look!'. "
-                "Did they point to it or show you something themselves?",
-                "சுவாரஸ்யமான ஒன்றைப் (பறவை, ஃபேன்) பார்த்து 'வாவ், பாரு!' என்று சொல்லுங்கள். "
-                "அதைச் சுட்டிக் காட்டியதா?", True),
+                "Did they point to it or show you something themselves?", True),
     "m24_se1": ("Pretend to bump your hand and say 'ouch' with a sad face. Did they stop, look at you or come to you?",
-                "கையில் அடிபட்டது போல் நடித்து, சோகமான முகத்துடன் 'ஆ' என்று சொல்லுங்கள். "
-                "நின்று பார்த்ததா அல்லது அருகில் வந்ததா?", True),
-    "m36_se2": ("At a park or with cousins, did they go near other children and join their play?",
-                "பூங்காவில் அல்லது உறவினர் குழந்தைகளுடன், மற்ற குழந்தைகளிடம் சென்று சேர்ந்து விளையாடியதா?", False),
+                True),
+    "m36_se2": ("At a park or with cousins, did they go near other children and join their play?", False),
 }
 EMOJI = {"observed": "✅", "not_observed": "❌", "unclear": "❓"}
 BANNER = {
@@ -78,9 +99,13 @@ def question(item):
     return REGRESSION_Q if item.get("is_regression_check") else item["text"]
 
 
-st.title("முளை · Mulai")
-st.write("குழந்தையின் வளர்ச்சி அடையாளங்களை முன்கூட்டியே கவனிப்போம் · "
-         "Notice your child's early developmental signs, early.")
+st.title(f"{TA['app_name']} · Mulai")
+st.write(f"{TA['tagline']} · Notice your child's early developmental signs, early.")
+
+data = core.load_data()
+_missing = sorted(set(ACTIVITIES) - core.all_ids(data))
+if _missing:  # fail loudly: an activity for an id that doesn't exist would silently never show
+    raise RuntimeError(f"ACTIVITIES ids not found in milestones.json: {_missing}")
 
 # Step 1: consent
 consent = st.checkbox("I am the child's parent/guardian and I agree to this check. "
@@ -89,7 +114,6 @@ st.caption("Consent as per DPDP Act 2023, Sec. 9")
 if not consent:
     st.stop()
 
-data = core.load_data()
 ss = st.session_state
 ss.setdefault("run", 0)
 
@@ -108,9 +132,8 @@ if ss.get("checked_age") not in (None, age):
 
 # Step 3: describe
 text = st.text_area(
-    "Tell us about your child · உங்கள் குழந்தையைப் பற்றி சொல்லுங்கள்",
-    placeholder="பெயர் சொன்னால் திரும்பிப் பார்க்கிறதா? விரலால் சுட்டிக் காட்டுகிறதா? என்ன வார்த்தைகள் பேசுகிறது? "
-                "மற்ற குழந்தைகளுடன் விளையாடுகிறதா? நீங்கள் செய்வதைப் பார்த்துச் செய்கிறதா?\n"
+    f"Tell us about your child · {TA['describe_label']}",
+    placeholder=f"{TA['describe_hint']}\n"
                 "Does your child respond to their name? Point at things? Which words do they say? "
                 "Play with others? Copy what you do?",
     height=160,
@@ -125,7 +148,7 @@ if st.button("Check", type="primary"):
     ss.checked_age = age
     ss.parent_text = text
     ss.run += 1
-    ss.fu, ss.fu_idx, ss.fu_optional, ss.activity = {}, 0, None, None
+    ss.fu, ss.fu_idx, ss.fu_optional, ss.activity, ss.key_only = {}, 0, None, None, False
     ss.pop("result", None)
 
 if "mapped" not in ss:
@@ -149,17 +172,20 @@ video_ok = "video_raw" in ss and ss.video_raw.get("video_ok") and not ss.video_r
 video_ids = {o["id"] for o in ss.video_obs} if video_ok else set()
 
 
-def show_sprout(shown, width):
+def show_sprout(shown, width, flag):
+    """Animate only the first time this sprout (screen or result) renders in the session."""
+    animate = not ss.get(flag)
+    ss[flag] = True
     # st.html strips <svg>; markdown keeps it. Safe because viz escapes every piece of text.
-    st.markdown(viz.sprout_svg(items, shown, video_ids, width) + viz.legend_html(bool(video_ids)),
-                unsafe_allow_html=True)
+    st.markdown(viz.sprout_svg(items, shown, video_ids, width, BRANCH_TA, animate)
+                + viz.legend_html(bool(video_ids), LEGEND_TA), unsafe_allow_html=True)
 
 
 if mapped:
     st.subheader("What we understood")
     st.markdown("**What we heard → what it means**")
     st.html(viz.highlight_html(ss.parent_text, mapped, items))
-show_sprout(answers, 520)
+show_sprout(answers, 520, "sprout_grown")
 if mapped:
     for item in items:
         m = mapped.get(item["id"])
@@ -183,7 +209,18 @@ def rank(i):
 
 main_qs = sorted([i for i in unmapped if rank(i) < 3], key=rank)
 more_qs = [i for i in unmapped if rank(i) == 3]
-queue = main_qs + (more_qs if ss.fu_optional else [])
+missing_key = sorted([i for i in items if core.is_key(i) and i["id"] not in answers], key=rank)
+
+# "Skip to result" goes to the unanswered key questions first; a result only once they're answered.
+if ss.pop("skip_requested", False):
+    if missing_key:
+        ss.key_only, ss.key_total, ss.activity = True, len(missing_key), None
+    else:
+        ss.want_result = True
+if ss.get("key_only") and not missing_key and not ss.activity:
+    ss.key_only = False
+    ss.want_result = True
+queue = missing_key if ss.get("key_only") else main_qs + (more_qs if ss.fu_optional else [])
 
 
 def answer_card(item_id, choice):
@@ -213,7 +250,25 @@ def set_optional(value):
 
 
 def skip_to_result():
+    ss.skip_requested = True
+
+
+def answer_inline(item_id, choice):
+    ss.fu[item_id] = to_status(by_id[item_id], choice)
     ss.want_result = True
+
+
+def card_text(item):
+    if item.get("is_regression_check"):
+        return TA["regression_q"], REGRESSION_Q
+    return (item["ta"], item["text"]) if item.get("ta") else (item["text"], "")
+
+
+def ask_card(item, key_prefix, on_click):
+    st.html(card_html(*card_text(item)))
+    for col, (label, choice) in zip(st.columns(3), CARD_BUTTONS):
+        col.button(label, key=f"{key_prefix}_{item['id']}_{choice}", on_click=on_click, args=(item["id"], choice),
+                   type="primary" if choice == "Yes" else "secondary", width="stretch")
 
 
 def card_html(big, small):
@@ -228,9 +283,9 @@ if unmapped:
     idx = min(ss.fu_idx, len(queue))
     if ss.activity:
         item_id = ss.activity
-        en, ta, timed = ACTIVITIES[item_id]
+        en, timed = ACTIVITIES[item_id]
         st.caption("🧸 An at-home observation. Not a test.")
-        st.html(card_html(ta, en))
+        st.html(card_html(TA[f"act_{item_id}"], en))
         c1, c2, c3 = st.columns(3)
         c1.button("They did it", key="act_yes", on_click=finish_activity, args=(item_id, "observed"),
                   type="primary", width="stretch")
@@ -243,17 +298,15 @@ if unmapped:
             for sec in range(1, 31):
                 time.sleep(1)
                 bar.progress(sec / 30, text=f"{30 - sec} s" if sec < 30 else "Time's up. What happened?")
+    elif ss.get("key_only"):
+        done = ss.key_total - len(queue)
+        st.progress(done / ss.key_total, text=f"Key question {done + 1} of {ss.key_total}")
+        st.caption("We need these key questions before we can show a result.")
+        ask_card(queue[0], "card", answer_card)
     elif idx < len(queue):
         item = queue[idx]
         st.progress(idx / len(queue), text=f"Question {idx + 1} of {len(queue)}")
-        if item.get("is_regression_check"):
-            big, small = REGRESSION_Q_TA, REGRESSION_Q
-        else:
-            big, small = (item["ta"], item["text"]) if item.get("ta") else (item["text"], "")
-        st.html(card_html(big, small))
-        for col, (label, choice) in zip(st.columns(3), CARD_BUTTONS):
-            col.button(label, key=f"card_{item['id']}_{choice}", on_click=answer_card, args=(item["id"], choice),
-                       type="primary" if choice == "Yes" else "secondary", width="stretch")
+        ask_card(item, "card", answer_card)
         prev = ss.fu.get(item["id"])
         if prev:
             st.caption(f"Your answer: {to_choice(item, prev)}")
@@ -267,9 +320,10 @@ if unmapped:
         st.progress(1.0, text="All questions answered")
         st.success("Thank you. Press “See result” below.")
     b1, b2 = st.columns(2)
-    if idx > 0 or ss.activity:
+    if (idx > 0 or ss.activity) and not ss.get("key_only"):
         b1.button("← Back", on_click=go_back)
-    b2.button("Skip to result →", on_click=skip_to_result)
+    if not ss.get("key_only"):
+        b2.button("Skip to result →", on_click=skip_to_result)
 
 # Step 4b: optional home video
 
@@ -366,7 +420,16 @@ if st.button("See result", type="primary") or ss.pop("want_result", False):
     ss.result = core.score(items, answers)
     ss.answers = answers
 
-if "result" in ss:
+if "result" in ss and ss.result["level"] == "INCOMPLETE":
+    result = ss.result
+    msg = ("Not enough answers yet. Please answer these key questions." if result["missing_key"] else
+           f"Not enough answers yet. Please answer at least {result['more_needed']} more of these questions.")
+    st.markdown(f"<div style='background:#607d8b;color:white;padding:1.2rem;border-radius:0.6rem;"
+                f"font-size:1.3rem;font-weight:600'>{msg}</div>", unsafe_allow_html=True)
+    pending = result["missing_key"] or sorted(result["not_assessed"], key=rank)
+    for item in pending:
+        ask_card(item, "inc", answer_inline)
+elif "result" in ss:
     result = ss.result
     colour, msg = BANNER[result["level"]]
     st.markdown(
@@ -377,7 +440,7 @@ if "result" in ss:
     st.info(data["act_early_rule"])
     for r in result["reasons"]:
         st.markdown(f"- {r}")
-    show_sprout(ss.answers, 680)
+    show_sprout(ss.answers, 680, "result_sprout_grown")
     quotes = {k: v["quote"] for k, v in mapped.items() if v["quote"]}
     repetitive = [data["repetitive_behaviors"][i] for i in ss.repetitive]
     note = core.doctor_note(age, age_entry, items, ss.answers, quotes, result, repetitive,

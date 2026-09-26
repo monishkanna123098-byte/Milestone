@@ -8,18 +8,19 @@ TINTS = {"observed": "#c8e6c9", "unclear": "#ffecb3", "not_observed": "#ffcdd2"}
 GREY = "#cfd8dc"
 VIDEO_BLUE = "#1565c0"
 
-# (key, Tamil, English, side: -1 left / +1 right, y where the branch leaves the stem)
+# (key, English, side: -1 left / +1 right, y where the branch leaves the stem).
+# Tamil labels are passed in from app.TA so all Tamil lives in one place.
 BRANCHES = [
-    ("social", "சமூகம்", "Social", -1, 132),
-    ("language", "மொழி", "Language", 1, 198),
-    ("thinking", "சிந்தனை", "Thinking", -1, 264),
-    ("movement", "இயக்கம்", "Movement", 1, 330),
+    ("social", "Social", -1, 132),
+    ("language", "Language", 1, 198),
+    ("thinking", "Thinking", -1, 264),
+    ("movement", "Movement", 1, 330),
 ]
 SOIL_Y = 392
 BRANCH_LEN = 160
 
-CSS = """
-.mulai-sprout{background:#f6faf3;border-radius:14px;padding:6px 0 2px;margin:0 auto}
+BASE_CSS = ".mulai-sprout{background:#f6faf3;border-radius:14px;padding:6px 0 2px;margin:0 auto}"
+ANIM_CSS = """
 .mulai-sprout .leaf{transform-box:fill-box;transform-origin:center;
   animation:mulai-grow .5s cubic-bezier(.2,.9,.3,1.25) both}
 .mulai-sprout .stem{stroke-dasharray:420;stroke-dashoffset:420;animation:mulai-draw .6s ease-out forwards}
@@ -57,8 +58,10 @@ def _leaf_path(length):
             f"C{length * .75:.1f},{w:.1f} {length * .25:.1f},{w:.1f} 0,0 Z")
 
 
-def sprout_svg(items, answers, video_ids=(), width=520):
-    """One <path class="leaf"> per item. answers: id -> status; missing = not assessed."""
+def sprout_svg(items, answers, video_ids=(), width=520, labels=None, animate=True):
+    """One <path class="leaf"> per item. answers: id -> status; missing = not assessed.
+    labels: optional {branch key: Tamil label}. animate=False renders the grown plant with no motion."""
+    labels = labels or {}
     groups = {b[0]: [] for b in BRANCHES}
     for item in items:
         groups[branch_of(item)].append(item)
@@ -67,7 +70,7 @@ def sprout_svg(items, answers, video_ids=(), width=520):
     parts = [
         f'<svg class="mulai-sprout" viewBox="0 0 520 420" width="100%" style="max-width:{int(width)}px;display:block" '
         f'xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Milestone sprout">',
-        f"<style>{CSS}</style>",
+        f"<style>{BASE_CSS}{ANIM_CSS if animate else ''}</style>",
         f'<path d="M20,{SOIL_Y} Q260,{SOIL_Y - 6} 500,{SOIL_Y}" stroke="#8d6e63" stroke-width="3" fill="none"/>',
         f'<ellipse cx="260" cy="{SOIL_Y + 8}" rx="200" ry="14" fill="#d7ccc8" opacity=".6"/>',
         f'<polyline class="stem" points="{stem_pts}" fill="none" stroke="#558b2f" stroke-width="6" '
@@ -78,7 +81,8 @@ def sprout_svg(items, answers, video_ids=(), width=520):
     ]
 
     n_leaf = 0
-    for key, ta, en, side, ay in BRANCHES:
+    for key, en, side, ay in BRANCHES:
+        ta = labels.get(key, "")
         ax = _stem_x(ay)
         p0, p1, p2 = (ax, ay), (ax + side * 85, ay + 8), (ax + side * BRANCH_LEN, ay - 38)
         parts.append(f'<path class="twig" d="M{p0[0]:.1f},{p0[1]} Q{p1[0]:.1f},{p1[1]} {p2[0]:.1f},{p2[1]}" '
@@ -109,16 +113,19 @@ def sprout_svg(items, answers, video_ids=(), width=520):
             parts.append(
                 f'<g transform="translate({x:.1f},{y:.1f}) rotate({angle:.1f})">'
                 f'<path class="leaf" d="{_leaf_path(length)}" fill="{fill}" stroke="{stroke}" '
-                f'stroke-width="{sw}" style="animation-delay:{300 + 40 * n_leaf}ms">'
+                f'stroke-width="{sw}"' + (f' style="animation-delay:{300 + 40 * n_leaf}ms"' if animate else "") + ">"
                 f"<title>{html.escape(item['text'])}</title></path></g>")
             n_leaf += 1
     parts.append("</svg>")
     return "".join(parts)
 
 
-def legend_html(show_video=False):
-    entries = [(COLOURS["observed"], "none", "ஆம் · Yes"), (COLOURS["unclear"], "none", "தெரியல · Not sure"),
-               (COLOURS["not_observed"], "none", "இல்லை · Not yet"), ("#ffffff", GREY, "Not asked"),
+def legend_html(show_video=False, labels=None):
+    """labels: optional {"yes", "not_sure", "no": Tamil word} shown before the English."""
+    t = {k: f"{v} · " for k, v in (labels or {}).items()}
+    entries = [(COLOURS["observed"], "none", t.get("yes", "") + "Yes"),
+               (COLOURS["unclear"], "none", t.get("not_sure", "") + "Not sure"),
+               (COLOURS["not_observed"], "none", t.get("no", "") + "Not yet"), ("#ffffff", GREY, "Not asked"),
                ("#7cb342", "none", "Bigger leaf = key sign")]
     if show_video:
         entries.append(("#ffffff", VIDEO_BLUE, "Seen in video"))
