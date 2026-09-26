@@ -1,4 +1,4 @@
-"""Pure logic for Mulai. No Streamlit, no network."""
+"""Pure logic for MilestoneAI. No Streamlit, no network."""
 import json
 import re
 from datetime import date

@@ -1,4 +1,4 @@
-"""Pure SVG/HTML builders for Mulai. No Streamlit. All text is html-escaped."""
+"""Pure SVG/HTML builders for MilestoneAI. No Streamlit. All text is html-escaped."""
 import html
 import math
 import re
@@ -19,15 +19,15 @@ BRANCHES = [
 SOIL_Y = 392
 BRANCH_LEN = 160
 
-BASE_CSS = ".mulai-sprout{background:#f6faf3;border-radius:14px;padding:6px 0 2px;margin:0 auto}"
+BASE_CSS = ".milestoneai-sprout{background:#f6faf3;border-radius:14px;padding:6px 0 2px;margin:0 auto}"
 ANIM_CSS = """
-.mulai-sprout .leaf{transform-box:fill-box;transform-origin:center;
-  animation:mulai-grow .5s cubic-bezier(.2,.9,.3,1.25) both}
-.mulai-sprout .stem{stroke-dasharray:420;stroke-dashoffset:420;animation:mulai-draw .6s ease-out forwards}
-.mulai-sprout .twig{stroke-dasharray:220;stroke-dashoffset:220;animation:mulai-draw .5s ease-out .2s forwards}
-@keyframes mulai-grow{from{transform:scale(0)}to{transform:scale(1)}}
-@keyframes mulai-draw{to{stroke-dashoffset:0}}
-@media (prefers-reduced-motion:reduce){.mulai-sprout .leaf,.mulai-sprout .stem,.mulai-sprout .twig{animation:none;stroke-dashoffset:0}}
+.milestoneai-sprout .leaf{transform-box:fill-box;transform-origin:center;
+  animation:milestoneai-grow .5s cubic-bezier(.2,.9,.3,1.25) both}
+.milestoneai-sprout .stem{stroke-dasharray:420;stroke-dashoffset:420;animation:milestoneai-draw .6s ease-out forwards}
+.milestoneai-sprout .twig{stroke-dasharray:220;stroke-dashoffset:220;animation:milestoneai-draw .5s ease-out .2s forwards}
+@keyframes milestoneai-grow{from{transform:scale(0)}to{transform:scale(1)}}
+@keyframes milestoneai-draw{to{stroke-dashoffset:0}}
+@media (prefers-reduced-motion:reduce){.milestoneai-sprout .leaf,.milestoneai-sprout .stem,.milestoneai-sprout .twig{animation:none;stroke-dashoffset:0}}
 """
 
 
@@ -68,7 +68,7 @@ def sprout_svg(items, answers, video_ids=(), width=520, labels=None, animate=Tru
 
     stem_pts = " ".join(f"{_stem_x(y):.1f},{y}" for y in range(SOIL_Y, 47, -8))
     parts = [
-        f'<svg class="mulai-sprout" viewBox="0 0 520 420" width="100%" style="max-width:{int(width)}px;display:block" '
+        f'<svg class="milestoneai-sprout" viewBox="0 0 520 420" width="100%" style="max-width:{int(width)}px;display:block" '
         f'xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Milestone sprout">',
         f"<style>{BASE_CSS}{ANIM_CSS if animate else ''}</style>",
         f'<path d="M20,{SOIL_Y} Q260,{SOIL_Y - 6} 500,{SOIL_Y}" stroke="#8d6e63" stroke-width="3" fill="none"/>',

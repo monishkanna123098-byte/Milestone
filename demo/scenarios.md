@@ -1,4 +1,4 @@
-# Mulai demo scenarios
+# MilestoneAI demo scenarios
 
 Both use **age 24 months**. In the app: sidebar → *Demo scenarios* → pick one → tick consent → **Check**.
 The texts below are the same strings as `TA["demo_red"]` / `TA["demo_green"]` in `app.py`.

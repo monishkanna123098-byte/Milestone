@@ -68,6 +68,17 @@ activity_ids = next([k.value for k in node.value.keys] for node in tree.body
 missing_activity = sorted(set(activity_ids) - core.all_ids(data))
 assert not missing_activity, f"ACTIVITIES ids not in milestones.json: {missing_activity}"
 
+# Consent texts: README must quote them word for word; every level has a safe Tamil voice template
+consts = {n.targets[0].id: ast.literal_eval(n.value) for n in tree.body if isinstance(n, ast.Assign)
+          and getattr(n.targets[0], "id", "") in ("CONSENT_TEXT", "VIDEO_CONSENT_TEXT", "TA")}
+readme = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "README.md"), encoding="utf-8").read()
+for name in ("CONSENT_TEXT", "VIDEO_CONSENT_TEXT"):
+    assert consts[name] in readme, f"README must quote {name} word for word"
+for level in ("red", "amber", "green", "incomplete"):
+    tpl = consts["TA"][f"voice_{level}"]
+    assert tpl and not core.BANNED_RE.search(tpl), level
+assert core.BANNED_RE.search("இது ஆட்டிசம் மாதிரி") and core.BANNED_RE.search("Autistic traits")
+
 # Video: validate_video is the security boundary for model output
 raw_video = {"observations": [
     {"id": "m18_se2", "finding": "observed", "timestamp": "00:06", "description": "points at the fan"},

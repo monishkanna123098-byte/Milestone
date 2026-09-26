@@ -1,11 +1,11 @@
-# முளை · Mulai
+# MilestoneAI
 
 A Tamil/English early developmental-signs check for parents of children aged 12–71 months.
-A parent describes their child in their own words (Tamil, English or Tanglish). An AI maps the
+A parent describes their child in their own words, typed or spoken (Tamil, English or Tanglish). An AI maps the
 description onto the CDC milestone checklist for the child's age. Plain Python rules, not the AI,
-decide the result. The parent gets clear next steps and a note to take to the doctor.
+decide the result. The parent gets clear next steps, read aloud in Tamil, and a note to take to the doctor.
 
-Mulai never diagnoses and never names a condition.
+MilestoneAI never diagnoses and never names a condition.
 
 ## The problem
 
@@ -16,16 +16,19 @@ Mulai never diagnoses and never names a condition.
   Lack of awareness of age-appropriate milestones, among families and health professionals, was a
   key reason (*Journal of Autism and Developmental Disorders*, 2022; published online 2021).
 
-Early help works best when it starts early. Mulai aims to shorten the time between "something
+Early help works best when it starts early. MilestoneAI aims to shorten the time between "something
 feels off" and "let's talk to the doctor".
 
 ## How it works
 
 ```
-Parent's words (text)
+Parent's words: typed text and/or a voice recording
    │
    ▼
-Gemini maps them to milestone IDs  ──►  whitelist: unknown IDs and statuses are dropped
+Gemini transcribes the voice and maps everything to milestone IDs
+   │                                   ──►  whitelist: unknown IDs and statuses are dropped
+   ▼
+"What we heard": the parent's words (or transcript) with each matched phrase highlighted
    │
    ▼
 Parent reviews what we understood, then answers the remaining questions as one-at-a-time cards
@@ -36,6 +39,12 @@ Python rule engine scores:  RED / AMBER / GREEN / INCOMPLETE
    │
    ▼
 Result banner + growing "sprout" of milestones + downloadable doctor note (.md)
+   │
+   ▼
+Gemini writes a short Tamil explanation from the result only  ──►  safety filter
+   │   (a condition name → fixed Tamil template instead)
+   ▼
+gTTS reads it aloud in Tamil
 ```
 
 - **Rules (core.py):** any key sign not seen → RED; lost skills → RED; anything else not seen or
@@ -44,17 +53,34 @@ Result banner + growing "sprout" of milestones + downloadable doctor note (.md)
 - **Optional home video:** Gemini lists timestamped observations for the same whitelisted IDs.
   The app shows where the video agrees or disagrees with the parent. The video never changes the
   score on its own; the parent confirms each suggestion with one tap.
-- **Planned, not in this build:** a Tamil explanation of the result written by Gemini behind a
-  safety filter, and read aloud with gTTS. (gTTS is in `requirements.txt` for that step.)
+- **Voice input:** the parent can record instead of typing. The recording goes to Gemini with the
+  same mapping prompt, and Gemini also returns a transcript, which is shown under "What we heard"
+  and used for the highlighting.
+- **Tamil voice result:** Gemini writes 4–6 short, warm spoken-Tamil sentences using only the result
+  (level, milestones not yet seen, what to do). RED and AMBER always say to see a doctor. If the text
+  contains a condition name, or Gemini fails, a fixed Tamil template for that level is used instead.
+  INCOMPLETE always uses its template ("please answer the key questions"). gTTS turns the text into
+  audio; if that fails, the text is shown without audio.
+- **Never crashes on a failed call:** every Gemini and gTTS call is wrapped. A failed mapping shows a
+  warning and falls back to the manual questions; a failed voice result falls back to template text.
+- **All Tamil in one place:** every parent-facing Tamil string is in the `TA` dict in `app.py`
+  (spoken Chennai register) so a native speaker can proofread it in one pass.
 
 ## Privacy and security
 
-- **Consent first:** nothing renders until a parent/guardian ticks consent. The video has its own,
-  separate consent.
+- **Consent first:** nothing renders until a parent/guardian ticks consent. The parent sees exactly this:
+
+  > I am the child's parent or guardian and I agree to this check. No name is collected. MilestoneAI saves nothing: when I close this page, my answers are gone. What I type or say is sent to Google's Gemini AI service to be understood, and the result explanation is sent to Google to be read aloud. Google may keep this data for a limited time under its own terms and, on the free tier, may use it to improve its services.
+
+  The video has its own, separate consent:
+
+  > I am the child's parent or guardian and I agree to this video being sent to Google's Gemini AI service to describe my child's behaviour. MilestoneAI does not save the video. Google may keep it for a limited time under its own terms and, on the free tier, may use it to improve its services.
+
 - **No name collected. No database. Nothing written to disk.** State lives in the browser session
   and is gone when the page is closed.
-- **Data does leave the device:** the description (and any video) is sent to the Google Gemini API
-  for mapping. What Google keeps depends on the API tier (see Limitations).
+- **Data does leave the device:** the description, voice recording or video goes to the Google Gemini
+  API, and the Tamil result explanation goes to Google's text-to-speech service (gTTS). What Google
+  keeps depends on the API tier (see Limitations).
 - **Prompt injection can't change the score:** the model can only return IDs from the checklist
   whitelist and one of three fixed statuses; anything else is dropped (`validate_mapping`,
   `validate_video`). The parent's words are wrapped as data, and the score is computed by Python.

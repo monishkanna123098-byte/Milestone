@@ -8,13 +8,12 @@ import core
 import llm
 import viz
 
-st.set_page_config(page_title="Mulai – early signs check", page_icon="🌱")
+st.set_page_config(page_title="MilestoneAI – early signs check", page_icon="🌱")
 
 REGRESSION_Q = "Has your child stopped doing something they used to do (words, gestures, play)?"
 # Every parent-facing Tamil string, in spoken Chennai Tamil, in one place for proofreading.
 # viz.py gets its labels from here via arguments (importing app.py would run the whole Streamlit page).
 TA = {
-    "app_name": "முளை",
     "tagline": "குழந்தையோட வளர்ச்சி அடையாளங்கள முன்னாடியே கவனிப்போம்",
     "describe_label": "உங்க குழந்தையப் பத்தி சொல்லுங்க",
     "describe_hint": "பேர் சொல்லிக் கூப்பிட்டா திரும்பிப் பாக்குதா? விரல் நீட்டிக் காட்டுதா? என்ன வார்த்தைங்க பேசுது? "
@@ -40,6 +39,17 @@ TA = {
                    "நின்னு பாத்துச்சா, இல்லன்னா பக்கத்துல வந்துச்சா?",
     "act_m36_se2": "பார்க்ல இல்லன்னா சொந்தக்காரங்க குழந்தைங்களோட இருக்கும்போது, "
                    "மத்த குழந்தைங்ககிட்ட போய் சேர்ந்து விளையாடுச்சா?",
+    # Fixed voice-result templates: used for INCOMPLETE, and whenever the AI explanation fails or
+    # trips the safety filter.
+    "voice_red": "உங்க குழந்தையோட சில வளர்ச்சி அடையாளங்கள இன்னும் பாக்க முடியல. இது உங்க தப்பு இல்ல. "
+                 "சீக்கிரமா ஒரு டாக்டரப் பாத்து, வளர்ச்சி பரிசோதனை பத்திக் கேளுங்க. "
+                 "இந்தக் குறிப்ப டாக்டர்கிட்ட காட்டுங்க. சீக்கிரம் உதவி கிடைச்சா ரொம்ப நல்லது.",
+    "voice_amber": "உங்க குழந்தை நிறைய விஷயங்கள நல்லா செய்யுது. சில விஷயங்கள இன்னும் கவனிக்கணும். "
+                   "அடுத்த தடவ டாக்டரப் பாக்கும்போது இதப் பத்திச் சொல்லுங்க. இந்தக் குறிப்ப கூட எடுத்துட்டுப் போங்க.",
+    "voice_green": "உங்க குழந்தை இந்த வயசுல பெரும்பாலான குழந்தைங்க செய்யறத செய்யுது. "
+                   "தொடர்ந்து கவனிச்சுட்டு இருங்க. எப்போ கவலையா இருந்தாலும் டாக்டர்கிட்ட பேசுங்க.",
+    "voice_incomplete": "இன்னும் சில முக்கியமான கேள்விகளுக்கு பதில் வேணும். கீழ இருக்கற கேள்விகளுக்கு பதில் "
+                        "சொல்லுங்க. அப்புறம் முடிவக் காட்டுறோம்.",
     # Demo scenarios (parent-style Tamil + English words). Also saved in demo/scenarios.md.
     "demo_red": "என் பையனுக்கு 2 வயசு. பேர் சொல்லிக் கூப்பிட்டா திரும்பிப் பாக்க மாட்டான். "
                 "எதையும் விரல் நீட்டிக் காட்ட மாட்டான். 'அம்மா', 'தண்ணி', 'பால்' மாதிரி மூணு நாலு வார்த்தை "
@@ -73,6 +83,16 @@ ACTIVITIES = {
                 True),
     "m36_se2": ("At a park or with cousins, did they go near other children and join their play?", False),
 }
+# Consent texts: the README quotes these word for word (test_core checks it).
+CONSENT_TEXT = ("I am the child's parent or guardian and I agree to this check. No name is collected. "
+                "MilestoneAI saves nothing: when I close this page, my answers are gone. What I type or say is "
+                "sent to Google's Gemini AI service to be understood, and the result explanation is sent to "
+                "Google to be read aloud. Google may keep this data for a limited time under its own terms and, "
+                "on the free tier, may use it to improve its services.")
+VIDEO_CONSENT_TEXT = ("I am the child's parent or guardian and I agree to this video being sent to Google's Gemini AI "
+                      "service to describe my child's behaviour. MilestoneAI does not save the video. Google may keep "
+                      "it for a limited time under its own terms and, on the free tier, may use it to improve its "
+                      "services.")
 EMOJI = {"observed": "✅", "not_observed": "❌", "unclear": "❓"}
 BANNER = {
     "RED": ("#c62828", "Please book a doctor visit now and ask about developmental screening."),
@@ -121,14 +141,16 @@ DEMOS = {"red": (24, TA["demo_red"]), "green": (24, TA["demo_green"])}
 
 def load_demo(name):
     """Fill age + description; keep consent, clear everything from a previous run."""
-    consent_given = ss.get("consent", False)
+    consent_given, gen = ss.get("consent", False), ss.get("gen", 0) + 1
     ss.clear()
-    ss.consent, (ss.age, ss.desc) = consent_given, DEMOS[name]
+    ss.consent, (ss.age, ss.desc), ss.gen = consent_given, DEMOS[name], gen  # new gen = empty voice recorder
 
 
 def start_over():
+    gen = ss.get("gen", 0) + 1
     ss.clear()
     ss.consent = False  # set explicitly so the browser unticks the box too (clear() alone leaves it ticked)
+    ss.gen = gen
 
 
 with st.sidebar:
@@ -141,7 +163,7 @@ with st.sidebar:
     st.divider()
     st.button("↺ Start over", on_click=start_over, width="stretch")
 
-st.title(f"{TA['app_name']} · Mulai")
+st.title("MilestoneAI")
 st.write(f"{TA['tagline']} · Notice your child's early developmental signs, early.")
 step_slot = st.empty()
 
@@ -154,7 +176,7 @@ def finish():
         step = 4
     elif "mapped" in ss:
         step = 3
-    elif (ss.get("desc") or "").strip():
+    elif (ss.get("desc") or "").strip() or ss.get(f"voice_{ss.get('gen', 0)}"):
         step = 2
     else:
         step = 1
@@ -165,18 +187,23 @@ def finish():
         + f">{n + 1}. {label}</span>" for n, label in enumerate(STEPS))
     step_slot.html(f"<div style='margin:-4px 0 8px'>{chips}</div>")
     st.divider()
-    st.caption("Screening aid, not a diagnosis · Based on CDC 'Learn the Signs. Act Early.' · No data stored")
+    st.caption("Screening aid, not a diagnosis · Based on CDC 'Learn the Signs. Act Early.' · "
+               "No data stored by MilestoneAI")
     st.stop()
 
 
-data = core.load_data()
+try:
+    data = core.load_data()
+except Exception as e:
+    st.error(f"Could not load milestones.json: {e}")
+    finish()
 _missing = sorted(set(ACTIVITIES) - core.all_ids(data))
 if _missing:  # fail loudly: an activity for an id that doesn't exist would silently never show
-    raise RuntimeError(f"ACTIVITIES ids not found in milestones.json: {_missing}")
+    st.error(f"Setup error: ACTIVITIES ids not found in milestones.json: {_missing}")
+    finish()
 
 # Step 1: consent
-consent = st.checkbox("I am the child's parent/guardian and I agree to this check. "
-                      "No name is collected. Nothing is stored after I close this page.", key="consent")
+consent = st.checkbox(CONSENT_TEXT, key="consent")
 st.caption("Consent as per DPDP Act 2023, Sec. 9")
 if not consent:
     finish()
@@ -206,15 +233,21 @@ text = st.text_area(
     height=160,
     key="desc",
 )
+voice = st.audio_input("Or speak in Tamil / English", key=f"voice_{ss.get('gen', 0)}")
 if st.button("Check", type="primary"):
-    with st.spinner("Understanding…"):
-        raw = llm.map_description(text, items, age_entry["label"], data["repetitive_behaviors"])
+    with st.spinner("Listening…" if voice else "Understanding…"):
+        raw = llm.map_description(text, items, age_entry["label"], data["repetitive_behaviors"],
+                                  audio_bytes=voice.getvalue() if voice else None)
+    transcript = core.sanitize(raw.get("transcript")).strip() if voice else ""
+    if voice and raw and not transcript:
+        st.warning("We couldn't hear the recording clearly. Please type, or try recording again.")
     rep = raw.get("repetitive", []) if isinstance(raw.get("repetitive"), list) else []
     ss.mapped = core.validate_mapping(raw, items)
     ss.repetitive = sorted({i for i in rep if isinstance(i, int) and 0 <= i < len(data["repetitive_behaviors"])})
     ss.llm_failed = not raw
     ss.checked_age = age
-    ss.parent_text = text
+    ss.parent_text = "\n".join(t for t in (transcript, text.strip()) if t)
+    ss.from_voice = bool(transcript)
     ss.run += 1
     ss.fu, ss.fu_idx, ss.fu_optional, ss.activity, ss.key_only = {}, 0, None, None, False
     ss.pop("result", None)
@@ -249,9 +282,11 @@ def show_sprout(shown, width, flag):
                 + viz.legend_html(bool(video_ids), LEGEND_TA), unsafe_allow_html=True)
 
 
-if mapped:
+if mapped or ss.parent_text:
     st.subheader("What we understood")
     st.markdown("**What we heard → what it means**")
+    if ss.from_voice:
+        st.caption("🎙️ Transcript of your recording")
     st.html(viz.highlight_html(ss.parent_text, mapped, items))
 show_sprout(answers, 520, "sprout_grown")
 if mapped:
@@ -261,7 +296,7 @@ if mapped:
             continue
         st.markdown(f"{EMOJI[m['status']]} **{question(item)}**")
         if m["quote"]:
-            st.caption(f"“{m['quote']}”")
+            st.caption(f"“{safe(m['quote'])}”")
         st.radio("Change", choices, horizontal=True, key=f"m_{run}_{item['id']}", label_visibility="collapsed")
 
 # Step 4: follow-up question cards for unmapped items
@@ -409,9 +444,7 @@ def seek(seconds):
 
 
 st.subheader("Home video (optional)")
-video_consent = st.checkbox(
-    "I am the parent/guardian. I consent to this video being analysed by an AI service to describe my "
-    "child's behaviour. It is not stored by Mulai and is deleted from the AI service right after analysis.")
+video_consent = st.checkbox(VIDEO_CONSENT_TEXT)
 video = st.file_uploader(f"Upload a short video of your child playing (max 60 s, max {MAX_VIDEO_MB} MB)",
                          type=list(VIDEO_MIME)) if video_consent else None
 if video is not None and video.size > MAX_VIDEO_MB * 1024 * 1024:
@@ -487,6 +520,29 @@ if "video_raw" in ss:
 if st.button("See result", type="primary") or ss.pop("want_result", False):
     ss.result = core.score(items, answers)
     ss.answers = answers
+    ss.pop("voice_result", None)
+
+
+def voice_result(result):
+    """Tamil explanation (AI, safety-filtered, template fallback) + gTTS audio. Never raises."""
+    if "voice_result" not in ss:
+        level = result["level"]
+        text = ""
+        if level != "INCOMPLETE":
+            with st.spinner("Preparing the Tamil explanation…"):
+                text = llm.explain_result(result, age_entry["label"])
+        if not text or core.BANNED_RE.search(text):
+            text = TA[f"voice_{level.lower()}"]
+        with st.spinner("Preparing audio…"):
+            ss.voice_result = (text, llm.speak(text))
+    text, audio = ss.voice_result
+    st.markdown("🔊 **தமிழில் · In Tamil**")
+    st.markdown(safe(text))
+    if audio:
+        st.audio(audio, format="audio/mp3")
+    else:
+        st.caption("Audio isn't available right now. The text above says the same thing.")
+
 
 if "result" in ss and ss.result["level"] == "INCOMPLETE":
     result = ss.result
@@ -495,6 +551,7 @@ if "result" in ss and ss.result["level"] == "INCOMPLETE":
     st.markdown(f"<div style='background:#607d8b;color:white;padding:1.2rem;border-radius:0.6rem;"
                 f"font-size:1.3rem;font-weight:600'>{msg}</div>", unsafe_allow_html=True)
     pending = result["missing_key"] or sorted(result["not_assessed"], key=rank)
+    voice_result(result)
     for item in pending:
         ask_card(item, "inc", answer_inline)
 elif "result" in ss:
@@ -509,6 +566,7 @@ elif "result" in ss:
     st.info(data["act_early_rule"])
     for r in result["reasons"]:
         st.markdown(f"- {r}")
+    voice_result(result)
     show_sprout(ss.answers, 680, "result_sprout_grown")
     quotes = {k: v["quote"] for k, v in mapped.items() if v["quote"]}
     repetitive = [data["repetitive_behaviors"][i] for i in ss.repetitive]
@@ -516,6 +574,6 @@ elif "result" in ss:
                             core.compare(ss.answers, ss.video_obs) if video_ok else None,
                             ss.video_rep if video_ok else None)
     st.download_button("Download note for the doctor (.md)", note,
-                       file_name="mulai_doctor_note.md", mime="text/markdown")
+                       file_name="milestoneai_doctor_note.md", mime="text/markdown")
 
 finish()
