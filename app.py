@@ -40,6 +40,21 @@ TA = {
                    "நின்னு பாத்துச்சா, இல்லன்னா பக்கத்துல வந்துச்சா?",
     "act_m36_se2": "பார்க்ல இல்லன்னா சொந்தக்காரங்க குழந்தைங்களோட இருக்கும்போது, "
                    "மத்த குழந்தைங்ககிட்ட போய் சேர்ந்து விளையாடுச்சா?",
+    # Demo scenarios (parent-style Tamil + English words). Also saved in demo/scenarios.md.
+    "demo_red": "என் பையனுக்கு 2 வயசு. பேர் சொல்லிக் கூப்பிட்டா திரும்பிப் பாக்க மாட்டான். "
+                "எதையும் விரல் நீட்டிக் காட்ட மாட்டான். 'அம்மா', 'தண்ணி', 'பால்' மாதிரி மூணு நாலு வார்த்தை "
+                "மட்டும் தான் பேசுவான், ரெண்டு வார்த்தை சேர்த்துப் பேச மாட்டான். toy car எல்லாம் வரிசையா "
+                "அடுக்கி வைப்பான், யாராவது நகர்த்துனா அழுவான். அவன் அக்கா அழுதா கூட கண்டுக்கவே மாட்டான்.",
+    "demo_green": "என் பையனுக்கு 2 வயசு. 'more milk', 'அம்மா வா' மாதிரி ரெண்டு வார்த்தை சேர்த்துப் பேசுறான். "
+                  "நாய பாத்தா விரல் நீட்டி அவங்க அம்மாகிட்ட காட்டுறான். அக்கா அழுதா சோகமா பாத்துட்டு "
+                  "தட்டிக் குடுக்குறான். பேர் சொல்லிக் கூப்பிட்டா உடனே திரும்புறான். பந்த உதைக்கிறான், "
+                  "ஸ்பூன்ல தானே சாப்பிடுறான், toy plate-ல toy சாப்பாடு வச்சு விளையாடுறான். "
+                  "பேசும்போது என் கண்ணப் பாத்துப் பேசுறான். முன்னாடி செஞ்ச எதையும் நிறுத்தல, "
+                  "புது வார்த்தைங்க கூடிட்டே தான் இருக்கு. நல்லா ஓடுறான், கைப்பிடிச்சு படி ஏறுறான். "
+                  "புக்ல 'நாய் எங்க?'ன்னு கேட்டா காட்டுறான், மூக்கு, கண்ணு எங்கன்னு கேட்டா தொட்டுக் காட்டுறான். "
+                  "flying kiss குடுப்பான், 'ஆமா'ன்னு தலை ஆட்டுவான். புது இடத்துக்குப் போனா என் முகத்தப் "
+                  "பாத்துட்டு தான் react பண்ணுவான். ஒரு கையில பொம்மைய புடிச்சுக்கிட்டு இன்னொரு கையால "
+                  "toy-ல button அமுக்கிப் பாப்பான்.",
 }
 CARD_BUTTONS = [(f"{TA['yes']} Yes", "Yes"), (f"{TA['no']} No", "No"), (f"{TA['not_sure']} Not sure", "Not sure")]
 BRANCH_TA = {k: TA[f"branch_{k}"] for k in ("social", "language", "thinking", "movement")}
@@ -61,7 +76,7 @@ ACTIVITIES = {
 EMOJI = {"observed": "✅", "not_observed": "❌", "unclear": "❓"}
 BANNER = {
     "RED": ("#c62828", "Please book a doctor visit now and ask about developmental screening."),
-    "AMBER": ("#ef6c00", "Mention these at your child's next doctor visit."),
+    "AMBER": ("#f9a825", "Mention these at your child's next doctor visit."),
     "GREEN": ("#2e7d32", "Your child is doing what most children do at this age. "
                          "Keep tracking, and talk to your doctor if you ever worry."),
 }
@@ -99,8 +114,60 @@ def question(item):
     return REGRESSION_Q if item.get("is_regression_check") else item["text"]
 
 
+ss = st.session_state
+STEPS = ["Consent", "Age", "Describe", "Check", "Result"]
+DEMOS = {"red": (24, TA["demo_red"]), "green": (24, TA["demo_green"])}
+
+
+def load_demo(name):
+    """Fill age + description; keep consent, clear everything from a previous run."""
+    consent_given = ss.get("consent", False)
+    ss.clear()
+    ss.consent, (ss.age, ss.desc) = consent_given, DEMOS[name]
+
+
+def start_over():
+    ss.clear()
+    ss.consent = False  # set explicitly so the browser unticks the box too (clear() alone leaves it ticked)
+
+
+with st.sidebar:
+    st.header("Demo scenarios")
+    # Only after consent: the age/description widgets must already exist, or the browser shows stale values.
+    no_consent = not ss.get("consent")
+    st.button("🔴 RED case · 24 months", on_click=load_demo, args=("red",), width="stretch", disabled=no_consent)
+    st.button("🟢 GREEN case · 24 months", on_click=load_demo, args=("green",), width="stretch", disabled=no_consent)
+    st.caption("Tick consent first." if no_consent else "Fills the age and the description. Then press Check.")
+    st.divider()
+    st.button("↺ Start over", on_click=start_over, width="stretch")
+
 st.title(f"{TA['app_name']} · Mulai")
 st.write(f"{TA['tagline']} · Notice your child's early developmental signs, early.")
+step_slot = st.empty()
+
+
+def finish():
+    """Draw the step indicator and footer from the final state of this run, then stop."""
+    if not ss.get("consent"):
+        step = 0
+    elif "result" in ss:
+        step = 4
+    elif "mapped" in ss:
+        step = 3
+    elif (ss.get("desc") or "").strip():
+        step = 2
+    else:
+        step = 1
+    chips = " <span style='color:#b0bec5'>→</span> ".join(
+        f"<span style='padding:3px 10px;border-radius:12px;font-size:.85rem;"
+        + ("background:#558b2f;color:white;font-weight:600'" if n == step else
+           "background:#dcedc8;color:#33691e'" if n < step else "background:#eceff1;color:#78909c'")
+        + f">{n + 1}. {label}</span>" for n, label in enumerate(STEPS))
+    step_slot.html(f"<div style='margin:-4px 0 8px'>{chips}</div>")
+    st.divider()
+    st.caption("Screening aid, not a diagnosis · Based on CDC 'Learn the Signs. Act Early.' · No data stored")
+    st.stop()
+
 
 data = core.load_data()
 _missing = sorted(set(ACTIVITIES) - core.all_ids(data))
@@ -109,21 +176,21 @@ if _missing:  # fail loudly: an activity for an id that doesn't exist would sile
 
 # Step 1: consent
 consent = st.checkbox("I am the child's parent/guardian and I agree to this check. "
-                      "No name is collected. Nothing is stored after I close this page.")
+                      "No name is collected. Nothing is stored after I close this page.", key="consent")
 st.caption("Consent as per DPDP Act 2023, Sec. 9")
 if not consent:
-    st.stop()
+    finish()
 
-ss = st.session_state
 ss.setdefault("run", 0)
 
 # Step 2: age
-age = int(st.number_input("Child's age in months", min_value=12, max_value=71, value=18, step=1))
+ss.setdefault("age", 18)
+age = int(st.number_input("Child's age in months", min_value=12, max_value=71, step=1, key="age"))
 try:
     age_entry, items = core.checklist_for_age(data, age)
 except ValueError as e:
     st.error(str(e))
-    st.stop()
+    finish()
 st.caption(f"We will use the CDC {age_entry['label']} checklist.")
 
 if ss.get("checked_age") not in (None, age):
@@ -137,6 +204,7 @@ text = st.text_area(
                 "Does your child respond to their name? Point at things? Which words do they say? "
                 "Play with others? Copy what you do?",
     height=160,
+    key="desc",
 )
 if st.button("Check", type="primary"):
     with st.spinner("Understanding…"):
@@ -152,7 +220,7 @@ if st.button("Check", type="primary"):
     ss.pop("result", None)
 
 if "mapped" not in ss:
-    st.stop()
+    finish()
 
 run, mapped = ss.run, ss.mapped
 by_id = {i["id"]: i for i in items}
@@ -433,7 +501,8 @@ elif "result" in ss:
     result = ss.result
     colour, msg = BANNER[result["level"]]
     st.markdown(
-        f"<div style='background:{colour};color:white;padding:1.2rem;border-radius:0.6rem;"
+        f"<div style='background:{colour};color:{'#212121' if result['level'] == 'AMBER' else 'white'};"
+        f"padding:1.2rem;border-radius:0.6rem;"
         f"font-size:1.3rem;font-weight:600'>{msg}</div>",
         unsafe_allow_html=True,
     )
@@ -448,3 +517,5 @@ elif "result" in ss:
                             ss.video_rep if video_ok else None)
     st.download_button("Download note for the doctor (.md)", note,
                        file_name="mulai_doctor_note.md", mime="text/markdown")
+
+finish()
