@@ -1,0 +1,199 @@
+{
+  "source": "CDC 'Learn the Signs. Act Early.' Developmental Milestones (2022 revision). Milestone text copied verbatim from cdc.gov on 26 Sep 2026.",
+  "act_early_rule": "Don't wait. If your child is not meeting one or more milestones, has lost skills he or she once had, or you have other concerns, act early. Talk with your child's doctor, share your concerns, and ask about developmental screening.",
+  "act_early_rule_source": "https://www.cdc.gov/act-early/milestones/index.html",
+  "autism_signs_source": "https://www.cdc.gov/autism/signs-symptoms/index.html",
+  "domains": {
+    "social_emotional": "Social/Emotional",
+    "language_communication": "Language/Communication",
+    "cognitive": "Cognitive (learning, thinking, problem-solving)",
+    "movement_physical": "Movement/Physical Development"
+  },
+  "ages": [
+    {
+      "age_months": 12,
+      "label": "1 year",
+      "url": "https://www.cdc.gov/act-early/milestones/1-year.html",
+      "milestones": [
+        {"id": "m12_se1", "domain": "social_emotional", "text": "Plays games with you, like pat-a-cake", "autism_sign": true},
+        {"id": "m12_lc1", "domain": "language_communication", "text": "Waves 'bye-bye'", "autism_sign": true},
+        {"id": "m12_lc2", "domain": "language_communication", "text": "Calls a parent 'mama' or 'dada' or another special name", "autism_sign": false},
+        {"id": "m12_lc3", "domain": "language_communication", "text": "Understands 'no' (pauses briefly or stops when you say it)", "autism_sign": false},
+        {"id": "m12_cg1", "domain": "cognitive", "text": "Puts something in a container, like a block in a cup", "autism_sign": false},
+        {"id": "m12_cg2", "domain": "cognitive", "text": "Looks for things he sees you hide, like a toy under a blanket", "autism_sign": false},
+        {"id": "m12_mp1", "domain": "movement_physical", "text": "Pulls up to stand", "autism_sign": false},
+        {"id": "m12_mp2", "domain": "movement_physical", "text": "Walks, holding on to furniture", "autism_sign": false},
+        {"id": "m12_mp3", "domain": "movement_physical", "text": "Drinks from a cup without a lid, as you hold it", "autism_sign": false},
+        {"id": "m12_mp4", "domain": "movement_physical", "text": "Picks things up between thumb and pointer finger, like small bits", "autism_sign": false}
+      ]
+    },
+    {
+      "age_months": 15,
+      "label": "15 months",
+      "url": "https://www.cdc.gov/act-early/milestones/15-months.html",
+      "milestones": [
+        {"id": "m15_se1", "domain": "social_emotional", "text": "Copies other children while playing, like taking toys out of a container when another child does", "autism_sign": false},
+        {"id": "m15_se2", "domain": "social_emotional", "text": "Shows you an object she likes", "autism_sign": true},
+        {"id": "m15_se3", "domain": "social_emotional", "text": "Claps when excited", "autism_sign": false},
+        {"id": "m15_se4", "domain": "social_emotional", "text": "Hugs stuffed doll or other toy", "autism_sign": false},
+        {"id": "m15_se5", "domain": "social_emotional", "text": "Shows you affection (hugs, cuddles, or kisses you)", "autism_sign": false},
+        {"id": "m15_lc1", "domain": "language_communication", "text": "Tries to say one or two words besides 'mama' or 'dada,' like 'ba' for ball or 'da' for dog", "autism_sign": false},
+        {"id": "m15_lc2", "domain": "language_communication", "text": "Looks at a familiar object when you name it", "autism_sign": false},
+        {"id": "m15_lc3", "domain": "language_communication", "text": "Follows directions given with both a gesture and words. For example, he gives you a toy when you hold out your hand and say, 'Give me the toy.'", "autism_sign": false},
+        {"id": "m15_lc4", "domain": "language_communication", "text": "Points to ask for something or to get help", "autism_sign": false},
+        {"id": "m15_cg1", "domain": "cognitive", "text": "Tries to use things the right way, like a phone, cup, or book", "autism_sign": false},
+        {"id": "m15_cg2", "domain": "cognitive", "text": "Stacks at least two small objects, like blocks", "autism_sign": false},
+        {"id": "m15_mp1", "domain": "movement_physical", "text": "Takes a few steps on his own", "autism_sign": false},
+        {"id": "m15_mp2", "domain": "movement_physical", "text": "Uses fingers to feed herself some food", "autism_sign": false}
+      ]
+    },
+    {
+      "age_months": 18,
+      "label": "18 months",
+      "url": "https://www.cdc.gov/act-early/milestones/18-months.html",
+      "milestones": [
+        {"id": "m18_se1", "domain": "social_emotional", "text": "Moves away from you, but looks to make sure you are close by", "autism_sign": false},
+        {"id": "m18_se2", "domain": "social_emotional", "text": "Points to show you something interesting", "autism_sign": true},
+        {"id": "m18_se3", "domain": "social_emotional", "text": "Puts hands out for you to wash them", "autism_sign": false},
+        {"id": "m18_se4", "domain": "social_emotional", "text": "Looks at a few pages in a book with you", "autism_sign": false},
+        {"id": "m18_se5", "domain": "social_emotional", "text": "Helps you dress him by pushing arm through sleeve or lifting up foot", "autism_sign": false},
+        {"id": "m18_lc1", "domain": "language_communication", "text": "Tries to say three or more words besides 'mama' or 'dada'", "autism_sign": false},
+        {"id": "m18_lc2", "domain": "language_communication", "text": "Follows one-step directions without any gestures, like giving you the toy when you say, 'Give it to me.'", "autism_sign": false},
+        {"id": "m18_cg1", "domain": "cognitive", "text": "Copies you doing chores, like sweeping with a broom", "autism_sign": false},
+        {"id": "m18_cg2", "domain": "cognitive", "text": "Plays with toys in a simple way, like pushing a toy car", "autism_sign": false},
+        {"id": "m18_mp1", "domain": "movement_physical", "text": "Walks without holding on to anyone or anything", "autism_sign": false},
+        {"id": "m18_mp2", "domain": "movement_physical", "text": "Scribbles", "autism_sign": false},
+        {"id": "m18_mp3", "domain": "movement_physical", "text": "Drinks from a cup without a lid and may spill sometimes", "autism_sign": false},
+        {"id": "m18_mp4", "domain": "movement_physical", "text": "Feeds himself with his fingers", "autism_sign": false},
+        {"id": "m18_mp5", "domain": "movement_physical", "text": "Tries to use a spoon", "autism_sign": false},
+        {"id": "m18_mp6", "domain": "movement_physical", "text": "Climbs on and off a couch or chair without help", "autism_sign": false}
+      ]
+    },
+    {
+      "age_months": 24,
+      "label": "2 years",
+      "url": "https://www.cdc.gov/act-early/milestones/2-years.html",
+      "milestones": [
+        {"id": "m24_se1", "domain": "social_emotional", "text": "Notices when others are hurt or upset, like pausing or looking sad when someone is crying", "autism_sign": true},
+        {"id": "m24_se2", "domain": "social_emotional", "text": "Looks at your face to see how to react in a new situation", "autism_sign": false},
+        {"id": "m24_lc1", "domain": "language_communication", "text": "Points to things in a book when you ask, like 'Where is the bear?'", "autism_sign": false},
+        {"id": "m24_lc2", "domain": "language_communication", "text": "Says at least two words together, like 'More milk.'", "autism_sign": false},
+        {"id": "m24_lc3", "domain": "language_communication", "text": "Points to at least two body parts when you ask him to show you", "autism_sign": false},
+        {"id": "m24_lc4", "domain": "language_communication", "text": "Uses more gestures than just waving and pointing, like blowing a kiss or nodding yes", "autism_sign": false},
+        {"id": "m24_cg1", "domain": "cognitive", "text": "Holds something in one hand while using the other hand; for example, holding a container and taking the lid off", "autism_sign": false},
+        {"id": "m24_cg2", "domain": "cognitive", "text": "Tries to use switches, knobs, or buttons on a toy", "autism_sign": false},
+        {"id": "m24_cg3", "domain": "cognitive", "text": "Plays with more than one toy at the same time, like putting toy food on a toy plate", "autism_sign": false},
+        {"id": "m24_mp1", "domain": "movement_physical", "text": "Kicks a ball", "autism_sign": false},
+        {"id": "m24_mp2", "domain": "movement_physical", "text": "Runs", "autism_sign": false},
+        {"id": "m24_mp3", "domain": "movement_physical", "text": "Walks (not climbs) up a few stairs with or without help", "autism_sign": false},
+        {"id": "m24_mp4", "domain": "movement_physical", "text": "Eats with a spoon", "autism_sign": false}
+      ]
+    },
+    {
+      "age_months": 30,
+      "label": "30 months",
+      "url": "https://www.cdc.gov/act-early/milestones/30-months.html",
+      "milestones": [
+        {"id": "m30_se1", "domain": "social_emotional", "text": "Plays next to other children and sometimes plays with them", "autism_sign": false},
+        {"id": "m30_se2", "domain": "social_emotional", "text": "Shows you what she can do by saying, 'Look at me!'", "autism_sign": false},
+        {"id": "m30_se3", "domain": "social_emotional", "text": "Follows simple routines when told, like helping to pick up toys when you say, 'It's clean-up time.'", "autism_sign": false},
+        {"id": "m30_lc1", "domain": "language_communication", "text": "Says about 50 words", "autism_sign": false},
+        {"id": "m30_lc2", "domain": "language_communication", "text": "Says two or more words together, with one action word, like 'Doggie run'", "autism_sign": false},
+        {"id": "m30_lc3", "domain": "language_communication", "text": "Names things in a book when you point and ask, 'What is this?'", "autism_sign": false},
+        {"id": "m30_lc4", "domain": "language_communication", "text": "Says words like 'I,' 'me,' or 'we'", "autism_sign": false},
+        {"id": "m30_cg1", "domain": "cognitive", "text": "Uses things to pretend, like feeding a block to a doll as if it were food", "autism_sign": false},
+        {"id": "m30_cg2", "domain": "cognitive", "text": "Shows simple problem-solving skills, like standing on a small stool to reach something", "autism_sign": false},
+        {"id": "m30_cg3", "domain": "cognitive", "text": "Follows two-step instructions like 'Put the toy down and close the door.'", "autism_sign": false},
+        {"id": "m30_cg4", "domain": "cognitive", "text": "Shows he knows at least one color, like pointing to a red crayon when you ask, 'Which one is red?'", "autism_sign": false},
+        {"id": "m30_mp1", "domain": "movement_physical", "text": "Uses hands to twist things, like turning doorknobs or unscrewing lids", "autism_sign": false},
+        {"id": "m30_mp2", "domain": "movement_physical", "text": "Takes some clothes off by himself, like loose pants or an open jacket", "autism_sign": false},
+        {"id": "m30_mp3", "domain": "movement_physical", "text": "Jumps off the ground with both feet", "autism_sign": false},
+        {"id": "m30_mp4", "domain": "movement_physical", "text": "Turns book pages, one at a time, when you read to her", "autism_sign": false}
+      ]
+    },
+    {
+      "age_months": 36,
+      "label": "3 years",
+      "url": "https://www.cdc.gov/act-early/milestones/3-years.html",
+      "milestones": [
+        {"id": "m36_se1", "domain": "social_emotional", "text": "Calms down within 10 minutes after you leave her, like at a childcare drop off", "autism_sign": false},
+        {"id": "m36_se2", "domain": "social_emotional", "text": "Notices other children and joins them to play", "autism_sign": true},
+        {"id": "m36_lc1", "domain": "language_communication", "text": "Talks with you in conversation using at least two back-and-forth exchanges", "autism_sign": false},
+        {"id": "m36_lc2", "domain": "language_communication", "text": "Asks 'who,' 'what,' 'where,' or 'why' questions, like 'Where is mommy/daddy?'", "autism_sign": false},
+        {"id": "m36_lc3", "domain": "language_communication", "text": "Says what action is happening in a picture or book when asked, like 'running,' 'eating,' or 'playing'", "autism_sign": false},
+        {"id": "m36_lc4", "domain": "language_communication", "text": "Says first name, when asked", "autism_sign": false},
+        {"id": "m36_lc5", "domain": "language_communication", "text": "Talks well enough for others to understand, most of the time", "autism_sign": false},
+        {"id": "m36_cg1", "domain": "cognitive", "text": "Draws a circle, when you show him how", "autism_sign": false},
+        {"id": "m36_cg2", "domain": "cognitive", "text": "Avoids touching hot objects, like a stove, when you warn her", "autism_sign": false},
+        {"id": "m36_mp1", "domain": "movement_physical", "text": "Strings items together, like large beads or macaroni", "autism_sign": false},
+        {"id": "m36_mp2", "domain": "movement_physical", "text": "Puts on some clothes by himself, like loose pants or a jacket", "autism_sign": false},
+        {"id": "m36_mp3", "domain": "movement_physical", "text": "Uses a fork", "autism_sign": false}
+      ]
+    },
+    {
+      "age_months": 48,
+      "label": "4 years",
+      "url": "https://www.cdc.gov/act-early/milestones/4-years.html",
+      "milestones": [
+        {"id": "m48_se1", "domain": "social_emotional", "text": "Pretends to be something else during play (teacher, superhero, dog)", "autism_sign": true},
+        {"id": "m48_se2", "domain": "social_emotional", "text": "Asks to go play with children if none are around, like 'Can I play with Alex?'", "autism_sign": false},
+        {"id": "m48_se3", "domain": "social_emotional", "text": "Comforts others who are hurt or sad, like hugging a crying friend", "autism_sign": false},
+        {"id": "m48_se4", "domain": "social_emotional", "text": "Avoids danger, like not jumping from tall heights at the playground", "autism_sign": false},
+        {"id": "m48_se5", "domain": "social_emotional", "text": "Likes to be a 'helper'", "autism_sign": false},
+        {"id": "m48_se6", "domain": "social_emotional", "text": "Changes behavior based on where she is (place of worship, library, playground)", "autism_sign": false},
+        {"id": "m48_lc1", "domain": "language_communication", "text": "Says sentences with four or more words", "autism_sign": false},
+        {"id": "m48_lc2", "domain": "language_communication", "text": "Says some words from a song, story, or nursery rhyme", "autism_sign": false},
+        {"id": "m48_lc3", "domain": "language_communication", "text": "Talks about at least one thing that happened during her day, like 'I played soccer.'", "autism_sign": false},
+        {"id": "m48_lc4", "domain": "language_communication", "text": "Answers simple questions like 'What is a coat for?' or 'What is a crayon for?'", "autism_sign": false},
+        {"id": "m48_cg1", "domain": "cognitive", "text": "Names a few colors of items", "autism_sign": false},
+        {"id": "m48_cg2", "domain": "cognitive", "text": "Tells what comes next in a well-known story", "autism_sign": false},
+        {"id": "m48_cg3", "domain": "cognitive", "text": "Draws a person with three or more body parts", "autism_sign": false},
+        {"id": "m48_mp1", "domain": "movement_physical", "text": "Catches a large ball most of the time", "autism_sign": false},
+        {"id": "m48_mp2", "domain": "movement_physical", "text": "Serves herself food or pours water, with adult supervision", "autism_sign": false},
+        {"id": "m48_mp3", "domain": "movement_physical", "text": "Unbuttons some buttons", "autism_sign": false},
+        {"id": "m48_mp4", "domain": "movement_physical", "text": "Holds crayon or pencil between fingers and thumb (not a fist)", "autism_sign": false}
+      ]
+    },
+    {
+      "age_months": 60,
+      "label": "5 years",
+      "url": "https://www.cdc.gov/act-early/milestones/5-years.html",
+      "milestones": [
+        {"id": "m60_se1", "domain": "social_emotional", "text": "Follows rules or takes turns when playing games with other children", "autism_sign": false},
+        {"id": "m60_se2", "domain": "social_emotional", "text": "Sings, dances, or acts for you", "autism_sign": true},
+        {"id": "m60_se3", "domain": "social_emotional", "text": "Does simple chores at home, like matching socks or clearing the table after eating", "autism_sign": false},
+        {"id": "m60_lc1", "domain": "language_communication", "text": "Tells a story she heard or made up with at least two events", "autism_sign": false},
+        {"id": "m60_lc2", "domain": "language_communication", "text": "Answers simple questions about a book or story after you read or tell it to him", "autism_sign": false},
+        {"id": "m60_lc3", "domain": "language_communication", "text": "Keeps a conversation going with more than three back-and-forth exchanges", "autism_sign": false},
+        {"id": "m60_lc4", "domain": "language_communication", "text": "Uses or recognizes simple rhymes (bat-cat, ball-tall)", "autism_sign": false},
+        {"id": "m60_cg1", "domain": "cognitive", "text": "Counts to 10", "autism_sign": false},
+        {"id": "m60_cg2", "domain": "cognitive", "text": "Names some numbers between 1 and 5 when you point to them", "autism_sign": false},
+        {"id": "m60_cg3", "domain": "cognitive", "text": "Uses words about time, like 'yesterday,' 'tomorrow,' 'morning,' or 'night'", "autism_sign": false},
+        {"id": "m60_cg4", "domain": "cognitive", "text": "Pays attention for 5 to 10 minutes during activities", "autism_sign": false},
+        {"id": "m60_cg5", "domain": "cognitive", "text": "Writes some letters in her name", "autism_sign": false},
+        {"id": "m60_cg6", "domain": "cognitive", "text": "Names some letters when you point to them", "autism_sign": false},
+        {"id": "m60_mp1", "domain": "movement_physical", "text": "Buttons some buttons", "autism_sign": false},
+        {"id": "m60_mp2", "domain": "movement_physical", "text": "Hops on one foot", "autism_sign": false}
+      ]
+    }
+  ],
+  "universal_checks": [
+    {"id": "u_name", "text": "Responds to their name", "applies_from_months": 9, "autism_sign": true, "cdc_source_text": "Does not respond to name by 9 months of age"},
+    {"id": "u_faces", "text": "Shows facial expressions such as happy, sad, angry, and surprised", "applies_from_months": 9, "autism_sign": true, "cdc_source_text": "Does not show facial expressions such as happy, sad, angry, and surprised by 9 months of age"},
+    {"id": "u_eye", "text": "Looks at you and keeps eye contact", "applies_from_months": 0, "autism_sign": true, "cdc_source_text": "Avoids or does not keep eye contact"},
+    {"id": "u_regression", "text": "Has NOT lost any skills they once had (words, gestures, play)", "applies_from_months": 0, "autism_sign": false, "is_regression_check": true, "cdc_source_text": "has lost skills he or she once had ... act early"}
+  ],
+  "repetitive_behaviors_note": "From CDC's autism signs page. Many typically developing children show some of these. Do NOT score them. Only list what the parent reports, so they can tell the doctor.",
+  "repetitive_behaviors": [
+    "Lines up toys or other objects and gets upset when order is changed",
+    "Repeats words or phrases over and over (called echolalia)",
+    "Plays with toys the same way every time",
+    "Is focused on parts of objects (for example, wheels)",
+    "Gets upset by minor changes",
+    "Has obsessive interests",
+    "Must follow certain routines",
+    "Flaps hands, rocks body, or spins self in circles",
+    "Has unusual reactions to the way things sound, smell, taste, look, or feel"
+  ],
+  "scoring_rules_note": "Our design, not CDC's. CDC's own rule: one or more missed milestones, lost skills, or any concern -> talk to the doctor. RED = a missed autism_sign item, a missed universal check, or any lost skill -> 'book a doctor visit now and ask about developmental screening'. AMBER = one or more other milestones missed or still 'not sure' after follow-up -> 'mention these at the next doctor visit'. GREEN = all observed -> 'keep tracking; talk to the doctor if you have any concern'. Never output the word 'autism' as a result."
+}
