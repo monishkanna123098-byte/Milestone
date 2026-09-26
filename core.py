@@ -1,5 +1,6 @@
 """Pure logic for MilestoneAI. No Streamlit, no network."""
 import json
+import os
 import re
 from datetime import date
 
@@ -11,6 +12,10 @@ BANNED_RE = re.compile(r"autis\w*|\bASD\b|ஆட்டி[சஸ]\S*|மதி\s
 
 
 def load_data(path="milestones.json"):
+    """Read the checklist. A relative path that isn't found from the current directory is looked up
+    next to this file, so the app works whichever folder the host starts it from."""
+    if not os.path.isabs(path) and not os.path.exists(path):
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), path)
     with open(path, encoding="utf-8") as f:
         return json.load(f)
 

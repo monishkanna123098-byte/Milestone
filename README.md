@@ -101,6 +101,26 @@ streamlit run app.py
 `python test_core.py`. Check the demo scenarios against the live model with
 `python demo/check_scenarios.py`; the scenario texts are in `demo/scenarios.md`.
 
+## Deploy (Streamlit Community Cloud)
+
+1. Commit `milestones.json` to the repo root. Without it the app only shows a setup error.
+2. Go to [share.streamlit.io](https://share.streamlit.io), sign in with GitHub, and click **Create app**
+   (top right) to deploy from a GitHub repository.
+3. Repository `monishkanna123098-byte/Milestone`, branch `claude/new-session-l8l2zx` (or `main` once
+   merged), main file path `app.py`. Optionally pick an app URL such as `milestoneai`.
+4. Open **Advanced settings**: keep Python **3.12** (the default; this is what was tested) and paste
+   `GEMINI_API_KEY = "your-key"` into **Secrets**. The key goes only there, never into the repo.
+5. Click **Deploy**. The first build takes a few minutes.
+
+Notes: the app is served over HTTPS, which the microphone needs. Apps sleep after 12 hours without
+traffic, so open the link a few minutes before a demo. Anyone with the link can use the app and
+spend your Gemini quota.
+
+Why not Vercel: Streamlit keeps each session, its uploads and its generated audio in one server
+process, reached over one long-lived WebSocket. Vercel runs it as serverless functions (WebSocket
+support is in beta, capped at 5 minutes per connection on the Hobby plan, with no guarantee that a
+browser stays on one instance), so sessions can reset and uploads/audio can fail.
+
 ## Limitations
 
 - **Not clinically validated.** This is a hackathon prototype and a screening aid, not a
