@@ -1,4 +1,5 @@
 import core
+import viz
 
 data = core.load_data()
 
@@ -65,5 +66,20 @@ assert verdicts == {some[0]: "confirmed", some[1]: "video_shows_skill",
                     some[2]: "worth_watching", some[3]: "consistent_concern"}, verdicts
 assert parent == before, "compare must not modify parent_answers"
 assert core.compare({}, video_obs[:1])[0]["verdict"] == "video_shows_skill"  # not assessed + seen
+
+# Visuals
+answers_mix = {items[0]["id"]: "observed", items[1]["id"]: "not_observed", items[2]["id"]: "unclear"}
+svg = viz.sprout_svg(items, answers_mix)
+assert svg.count('class="leaf"') == len(items), (svg.count('class="leaf"'), len(items))
+assert svg == viz.sprout_svg(items, answers_mix), "sprout must be deterministic"
+assert viz.sprout_svg(items, answers_mix, {items[0]["id"]}).count("#1565c0") == 1  # one video ring
+
+evil = "<script>alert(1)</script> he says amma"
+hl = viz.highlight_html(evil, {"m18_se2": {"status": "observed", "quote": "SAYS AMMA"}}, items)
+assert "<script" not in hl and "&lt;script&gt;" in hl
+assert hl.count("<mark") == 1 and ">says amma</mark>" in hl  # case-insensitive, keeps parent's casing
+assert viz.highlight_html(evil, {"m18_se2": {"status": "observed", "quote": "not in text"}}).count("<mark") == 0
+assert "<script" not in viz.sprout_svg([{**items[0], "text": "<script>x</script>"}], {})
+assert hl == viz.highlight_html(evil, {"m18_se2": {"status": "observed", "quote": "SAYS AMMA"}}, items)
 
 print("ALL TESTS PASSED")
